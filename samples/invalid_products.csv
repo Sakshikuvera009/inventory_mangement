@@ -1,0 +1,4 @@
+product_code,product_name,category,price,stock_quantity,status
+PRD-003,USB Cable,Accessories,250,15,Active
+PRD-003,Duplicate Code,Accessories,100,10,Active
+PRD-004,Bad Price,Accessories,-50,5,Active

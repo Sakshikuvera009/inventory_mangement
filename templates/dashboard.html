@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Overview | Northstar{% endblock %}
+{% block topbar_context %}Overview{% endblock %}
+{% block content %}
+<div class="page-title">
+	<div><div class="eyebrow">Business overview</div><h1>Good to see you, {{ request.user.first_name|default:request.user.username }}</h1><p>Here’s what’s happening across your sales and inventory.</p></div>
+	<a class="button" href="/orders/new/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New sales order</a>
+</div>
+<section class="stats" aria-label="Business statistics">
+	<article><div class="stat-top"><span>Total products</span><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.5 7.7 7.5 4.2 7.5-4.2M12 12v8.5"/></svg></span></div><strong>{{ products }}</strong><div class="stat-footnote">Active in your catalog</div></article>
+	<article><div class="stat-top"><span>Total customers</span><span class="stat-icon teal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20v-1a6 6 0 0 1 12 0v1m2-13a3.5 3.5 0 0 1 0 6.8M18 15a4 4 0 0 1 3 4v1"/></svg></span></div><strong>{{ customers }}</strong><div class="stat-footnote">Active customer accounts</div></article>
+	<article><div class="stat-top"><span>Total sales</span><span class="stat-icon gold"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20m5-15H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span></div><strong>₹{{ total_sales|floatformat:2 }}</strong><div class="stat-footnote">Confirmed orders to date</div></article>
+	<article><div class="stat-top"><span>Pending orders</span><span class="stat-icon rose"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div><strong>{{ drafts }}</strong><div class="stat-footnote">{{ confirmed }} confirmed orders</div></article>
+</section>
+<div class="dashboard-grid">
+	<section class="card chart-card">
+		<div class="section-heading"><div><h2>Sales analytics</h2><p>Confirmed revenue over the last six months</p></div><span class="chart-legend"><i class="legend-dot"></i>Sales</span></div>
+		{% if total_sales %}
+		<div class="chart-wrap"><svg class="sales-chart" viewBox="0 0 620 165" role="img" aria-label="Monthly confirmed sales for the last six months" preserveAspectRatio="none">
+			<path class="chart-gridline" d="M0 25.5H620M0 75.5H620M0 125.5H620"/>
+			{% for point in sales_chart %}<rect class="chart-bar" x="{{ point.x }}" y="{{ point.y }}" width="48" height="{{ point.height }}" rx="5" style="animation-delay:{{ forloop.counter0 }}0ms"><title>{{ point.label }}: ₹{{ point.total|floatformat:2 }}</title></rect><text class="chart-label" x="{{ point.x|add:24 }}" y="153">{{ point.label }}</text>{% endfor %}
+		</svg></div>
+		{% else %}<div class="chart-wrap"><div class="chart-empty">Confirmed sales will appear here.</div></div>{% endif %}
+	</section>
+	<section class="card">
+		<div class="section-heading"><div><h2>Low stock</h2><p>Products with 10 units or fewer</p></div><a class="text-link" href="/products/">View catalog</a></div>
+		<div class="stock-list">{% for product in low_stock_products %}<div class="stock-row"><div class="stock-name"><strong>{{ product.name }}</strong><small>{{ product.product_code }}{% if product.category %} · {{ product.category }}{% endif %}</small></div><span class="stock-count">{{ product.stock_quantity }} left</span></div>{% empty %}<div class="empty-state">All active products are above the low-stock threshold.</div>{% endfor %}</div>
+	</section>
+</div>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>Recent sales orders</h2><p>Your latest order activity</p></div><a class="text-link" href="/orders/">View all orders <span aria-hidden="true">&rarr;</span></a></div>
+	<div class="table-wrap"><table data-enhance><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Status</th><th>Total</th><th></th></tr></thead><tbody>
+	{% for o in orders %}<tr><td><span class="table-primary">{{ o.order_number }}</span></td><td>{{ o.customer.name }}</td><td>{{ o.order_date|date:"M j, Y" }}</td><td><span class="status status-{{ o.status|lower }}">{{ o.get_status_display }}</span></td><td class="table-primary">₹{{ o.grand_total|floatformat:2 }}</td><td><button class="secondary small" type="button" onclick="showOrderDetails({{ o.id }})">Details</button></td></tr>{% empty %}<tr><td colspan="6"><div class="empty-state"><strong>No sales activity yet</strong>Create your first order to see it here.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+<div class="modal-backdrop" id="orderDetailModal" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle"><div class="modal-header"><div><h2 id="orderDetailTitle">Order details</h2><p id="orderDetailSubtitle">Loading order information</p></div><button class="icon-button modal-close" type="button" onclick="closeOrderDetails()" aria-label="Close order details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="modal-body" id="orderDetailBody"><div class="modal-loading">Loading order…</div></div></section></div>
+{% endblock %}

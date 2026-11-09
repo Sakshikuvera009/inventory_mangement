@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Sales orders | Northstar{% endblock %}
+{% block topbar_context %}Sales orders{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Order management</div><h1>Sales orders</h1><p>Track drafts, confirmations, and customer fulfillment.</p></div><a class="button" href="/orders/new/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Create order</a></div>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>All orders</h2><p>{{ orders|length }} orders in your workspace</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance><thead><tr><th>Order</th><th>Customer</th><th>Order date</th><th>Status</th><th>Discount</th><th>Total</th><th>Actions</th></tr></thead><tbody>
+	{% for o in orders %}<tr><td><button class="table-sort-link" type="button" onclick="showOrderDetails({{ o.id }})">{{ o.order_number }}</button></td><td>{{ o.customer.name }}</td><td>{{ o.order_date|date:"M j, Y" }}</td><td><span class="status status-{{ o.status|lower }}">{{ o.get_status_display }}</span></td><td>{{ o.discount_percentage }}%</td><td class="table-primary">₹{{ o.grand_total|floatformat:2 }}</td><td class="row-actions"><button class="secondary small" type="button" onclick="showOrderDetails({{ o.id }})">Details</button>{% if o.status == 'DRAFT' %}<button class="small" type="button" onclick="orderAction({{ o.id }},'confirm')">Confirm</button><button class="danger small" type="button" onclick="orderAction({{ o.id }},'cancel')">Cancel</button>{% elif o.status == 'CONFIRMED' %}<button class="danger small" type="button" onclick="orderAction({{ o.id }},'cancel')">Cancel</button>{% endif %}</td></tr>{% empty %}<tr><td colspan="7"><div class="empty-state"><strong>No orders yet</strong>Your sales orders will appear here once created.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+<div class="modal-backdrop" id="orderDetailModal" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle"><div class="modal-header"><div><h2 id="orderDetailTitle">Order details</h2><p id="orderDetailSubtitle">Loading order information</p></div><button class="icon-button modal-close" type="button" onclick="closeOrderDetails()" aria-label="Close order details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="modal-body" id="orderDetailBody"><div class="modal-loading">Loading order…</div></div></section></div>
+{% endblock %}

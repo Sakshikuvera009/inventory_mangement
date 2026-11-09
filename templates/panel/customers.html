@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Manage customers | Northstar{% endblock %}
+{% block topbar_context %}Admin panel <span>/</span> <strong>Customers</strong>{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Relationships</div><h1>Manage customers</h1><p>Add, edit or deactivate customer accounts.</p></div><a class="button" href="{% url 'panel_customer_add' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add customer</a></div>
+<form class="panel-filters" method="get">
+	<input type="search" name="q" value="{{ q }}" placeholder="Search name, email, mobile or city" aria-label="Search customers">
+	<select name="state" aria-label="Status"><option value="">Any status</option><option value="active" {% if state == 'active' %}selected{% endif %}>Active</option><option value="inactive" {% if state == 'inactive' %}selected{% endif %}>Inactive</option></select>
+	<button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg> Filter</button>
+	{% if q or state %}<a class="button secondary" href="{% url 'panel_customers' %}">Reset</a>{% endif %}
+</form>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>Customer directory</h2><p>{{ customers|length }} customer{{ customers|length|pluralize }}</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance class="table-stack"><thead><tr><th>Customer</th><th>Mobile</th><th>City</th><th>Orders</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+	{% for c in customers %}<tr><td data-label="Customer"><span class="table-primary">{{ c.name }}</span><span class="table-secondary">{{ c.email|default:"No email provided" }}</span></td><td data-label="Mobile">{{ c.mobile|default:"—" }}</td><td data-label="City">{{ c.city|default:"—" }}</td><td data-label="Orders">{{ c.order_count }}</td><td data-label="Status"><span class="status status-{% if c.is_active %}active{% else %}inactive{% endif %}">{% if c.is_active %}Active{% else %}Inactive{% endif %}</span></td><td data-label="Actions" class="row-actions"><a class="button secondary small" href="{% url 'panel_customer_edit' c.pk %}">Edit</a><form class="inline-form" method="post" action="{% url 'panel_customer_toggle' c.pk %}">{% csrf_token %}<button type="submit" class="small {% if c.is_active %}danger{% else %}secondary{% endif %}">{% if c.is_active %}Deactivate{% else %}Activate{% endif %}</button></form></td></tr>{% empty %}<tr><td colspan="6"><div class="empty-state"><strong>No customers found</strong>Add a customer to get started.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Northstar{% endblock %}
+{% block topbar_context %}Admin panel <span>/</span> <strong>{{ title }}</strong>{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">{{ eyebrow }}</div><h1>{{ title }}</h1><p>{{ subtitle }}</p></div><a class="button secondary" href="{% url back_url %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>Back</a></div>
+<section class="card panel-form-card">
+	{% if form.non_field_errors %}<p class="error" role="alert">{{ form.non_field_errors.0 }}</p>{% endif %}
+	{% if extra_note %}<p class="form-note">{{ extra_note }}</p>{% endif %}
+	<form method="post" novalidate>
+		{% csrf_token %}
+		<div class="field-grid">
+			{% for field in form %}<div class="{% if field.field.widget.input_type == 'checkbox' or field.name == 'reason' %}span-2{% endif %}">{% include "_field.html" %}</div>{% endfor %}
+		</div>
+		<div class="form-actions"><a class="button secondary" href="{% url back_url %}">Cancel</a><button type="submit">{{ submit_label }}</button></div>
+	</form>
+</section>
+{% endblock %}

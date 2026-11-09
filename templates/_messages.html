@@ -1,0 +1,1 @@
+{% if messages %}<div class="flash-stack" role="status">{% for message in messages %}<div class="flash flash-{{ message.tags }}"><span>{{ message }}</span><button type="button" class="flash-close" aria-label="Dismiss message" onclick="this.parentElement.remove()">&times;</button></div>{% endfor %}</div>{% endif %}

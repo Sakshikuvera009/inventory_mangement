@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Products | Northstar{% endblock %}
+{% block topbar_context %}Products{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Catalog</div><h1>Products</h1><p>Manage availability, pricing, and stock across your catalog.</p></div>{% if is_admin %}{% if request.user.is_staff %}<a class="button" href="/admin/inventory/product/add/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add product</a>{% else %}<a class="button" href="/import/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>Import products</a>{% endif %}{% endif %}</div>
+<form class="search" method="get" action="/products/"><input type="search" name="q" placeholder="Search by product name or code" value="{{ request.GET.q }}" aria-label="Search products"><button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>Search</button></form>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>Product catalog</h2><p>{{ products|length }} matching products</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th>{% if is_admin %}<th>Actions</th>{% endif %}</tr></thead><tbody>
+	{% for p in products %}<tr><td><span class="table-primary">{{ p.name }}</span><span class="table-secondary">{{ p.product_code }}</span></td><td>{{ p.category|default:"Uncategorized" }}</td><td>₹{{ p.price|floatformat:2 }}</td><td>{% if p.stock_quantity <= 10 %}<span class="status status-draft">{{ p.stock_quantity }} left</span>{% else %}{{ p.stock_quantity }}{% endif %}</td><td><span class="status status-{% if p.is_active %}active{% else %}inactive{% endif %}">{% if p.is_active %}Active{% else %}Inactive{% endif %}</span></td>{% if request.user.is_staff %}<td><a class="text-link" href="/admin/inventory/product/{{ p.pk }}/change/">Edit</a></td>{% endif %}</tr>{% empty %}<tr><td colspan="6"><div class="empty-state"><strong>No products found</strong>Try another search, or add products from the catalog tools.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+{% endblock %}

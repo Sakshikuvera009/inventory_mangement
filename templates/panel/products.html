@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Manage products | Northstar{% endblock %}
+{% block topbar_context %}Admin panel <span>/</span> <strong>Products</strong>{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Catalog</div><h1>Manage products</h1><p>Edit pricing, availability and adjust stock with a full audit trail.</p></div><a class="button" href="{% url 'panel_product_add' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add product</a></div>
+<form class="panel-filters" method="get">
+	<input type="search" name="q" value="{{ q }}" placeholder="Search name, code or category" aria-label="Search products">
+	<select name="state" aria-label="Status"><option value="">Any status</option><option value="active" {% if state == 'active' %}selected{% endif %}>Active</option><option value="inactive" {% if state == 'inactive' %}selected{% endif %}>Inactive</option></select>
+	<select name="stock" aria-label="Stock"><option value="">Any stock</option><option value="low" {% if stock == 'low' %}selected{% endif %}>Low stock (≤ {{ low_stock }})</option></select>
+	<button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg> Filter</button>
+	{% if q or state or stock %}<a class="button secondary" href="{% url 'panel_products' %}">Reset</a>{% endif %}
+</form>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>Product catalog</h2><p>{{ products|length }} product{{ products|length|pluralize }}</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance class="table-stack"><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+	{% for p in products %}<tr><td data-label="Product"><span class="table-primary">{{ p.name }}</span><span class="table-secondary">{{ p.product_code }}</span></td><td data-label="Category">{{ p.category|default:"Uncategorized" }}</td><td data-label="Price">₹{{ p.price|floatformat:2 }}</td><td data-label="Stock">{% if p.stock_quantity <= low_stock %}<span class="status status-draft">{{ p.stock_quantity }} left</span>{% else %}{{ p.stock_quantity }}{% endif %}</td><td data-label="Status"><span class="status status-{% if p.is_active %}active{% else %}inactive{% endif %}">{% if p.is_active %}Active{% else %}Inactive{% endif %}</span></td><td data-label="Actions" class="row-actions"><a class="button secondary small" href="{% url 'panel_product_edit' p.pk %}">Edit</a><a class="button secondary small" href="{% url 'panel_product_stock' p.pk %}">Adjust stock</a><form class="inline-form" method="post" action="{% url 'panel_product_toggle' p.pk %}">{% csrf_token %}<button type="submit" class="small {% if p.is_active %}danger{% else %}secondary{% endif %}">{% if p.is_active %}Deactivate{% else %}Activate{% endif %}</button></form></td></tr>{% empty %}<tr><td colspan="6"><div class="empty-state"><strong>No products found</strong>Add a product or import a CSV.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+{% endblock %}

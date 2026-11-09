@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Import products | Northstar{% endblock %}
+{% block topbar_context %}Import products{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Catalog tools</div><h1>Import products</h1><p>Add products in bulk with a validated CSV file.</p></div></div>
+<section class="card">
+	<div class="section-heading"><div><h2>Upload product data</h2><p>Imports are all-or-nothing. Every row must pass validation.</p></div></div>
+	<form id="csvForm" enctype="multipart/form-data">
+		<label class="upload-zone" for="csvFile"><span><span class="upload-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg></span><strong>Choose a CSV file</strong><p>UTF-8 encoded, with a header row</p><input id="csvFile" type="file" name="file" accept=".csv,text/csv" required></span></label>
+		<p class="field-help">Required columns: <code>product_code</code>, <code>product_name</code>, <code>category</code>, <code>price</code>, <code>stock_quantity</code>, <code>status</code>.</p>
+		<div class="form-actions"><button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>Validate and import</button></div>
+	</form>
+	<pre id="csvResult" class="result-panel" hidden aria-live="polite"></pre>
+</section>
+{% endblock %}

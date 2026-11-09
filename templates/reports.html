@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Reports | Northstar{% endblock %}
+{% block topbar_context %}Reports{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Business intelligence</div><h1>Reports</h1><p>Explore sales performance, stock levels, and inventory movement.</p></div></div>
+<section class="card">
+	<div class="section-heading"><div><h2>Report filters</h2><p>Choose a date range and stock alert threshold.</p></div></div>
+	<div class="filters"><label>From<input type="date" id="fromDate"></label><label>To<input type="date" id="toDate"></label><label>Low-stock threshold<input type="number" id="threshold" min="0" value="10"></label><button type="button" onclick="loadReports()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 5-6"/></svg>Generate reports</button></div>
+	<div id="reportOutput" class="report-output"><div class="empty-state">Select your filters to generate a report.</div></div>
+</section>
+{% endblock %}

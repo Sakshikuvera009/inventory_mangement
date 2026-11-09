@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Users | Northstar{% endblock %}
+{% block topbar_context %}Admin panel <span>/</span> <strong>Users</strong>{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">User management</div><h1>Users</h1><p>Control who can sign in and what they can do.</p></div><a class="button" href="{% url 'panel_user_add' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add user</a></div>
+<form class="panel-filters" method="get">
+	<input type="search" name="q" value="{{ q }}" placeholder="Search name, username or email" aria-label="Search users">
+	<select name="role" aria-label="Role"><option value="">All roles</option><option value="ADMIN" {% if role == 'ADMIN' %}selected{% endif %}>Admins</option><option value="SALES" {% if role == 'SALES' %}selected{% endif %}>Sales users</option></select>
+	<select name="state" aria-label="Status"><option value="">Any status</option><option value="active" {% if state == 'active' %}selected{% endif %}>Active</option><option value="inactive" {% if state == 'inactive' %}selected{% endif %}>Inactive</option></select>
+	<button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg> Filter</button>
+	{% if q or role or state %}<a class="button secondary" href="{% url 'panel_users' %}">Reset</a>{% endif %}
+</form>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>All users</h2><p>{{ users|length }} account{{ users|length|pluralize }}</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance class="table-stack"><thead><tr><th>User</th><th>Role</th><th>Orders</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+	{% for u in users %}<tr><td data-label="User"><span class="table-primary">{{ u.get_full_name|default:u.username }}{% if u.pk == request.user.pk %} <em class="you">You</em>{% endif %}</span><span class="table-secondary">@{{ u.username }} · {{ u.email|default:"no email" }}</span></td><td data-label="Role">{% if u.is_admin_user %}<span class="status status-confirmed">Admin</span>{% else %}<span class="status">Sales</span>{% endif %}</td><td data-label="Orders">{{ u.order_count }}</td><td data-label="Joined">{{ u.date_joined|date:"M j, Y" }}</td><td data-label="Status"><span class="status status-{% if u.is_active %}active{% else %}inactive{% endif %}">{% if u.is_active %}Active{% else %}Inactive{% endif %}</span></td><td data-label="Actions" class="row-actions"><a class="button secondary small" href="{% url 'panel_user_edit' u.pk %}">Edit</a>{% if u.pk != request.user.pk %}<form class="inline-form" method="post" action="{% url 'panel_user_toggle' u.pk %}" onsubmit="return confirm('{% if u.is_active %}Deactivate{% else %}Activate{% endif %} this user?')">{% csrf_token %}<button type="submit" class="small {% if u.is_active %}danger{% else %}secondary{% endif %}">{% if u.is_active %}Deactivate{% else %}Activate{% endif %}</button></form>{% endif %}</td></tr>{% empty %}<tr><td colspan="6"><div class="empty-state"><strong>No users found</strong>Try changing your filters.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+{% endblock %}

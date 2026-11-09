@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Stock movements | Northstar{% endblock %}
+{% block topbar_context %}Admin panel <span>/</span> <strong>Stock movements</strong>{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Inventory</div><h1>Stock movements</h1><p>Every change to product stock, with who made it and why (latest 300).</p></div></div>
+<form class="panel-filters" method="get">
+	<input type="search" name="q" value="{{ q }}" placeholder="Search product, code or reason" aria-label="Search movements">
+	<select name="type" aria-label="Type"><option value="">All types</option>{% for value, label in types %}<option value="{{ value }}" {% if kind == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+	<button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg> Filter</button>
+	{% if q or kind %}<a class="button secondary" href="{% url 'panel_movements' %}">Reset</a>{% endif %}
+</form>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>Movement log</h2><p>{{ movements|length }} record{{ movements|length|pluralize }} shown</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance class="table-stack"><thead><tr><th>Product</th><th>Type</th><th>Change</th><th>Reason</th><th>By</th><th>When</th></tr></thead><tbody>
+	{% for m in movements %}<tr><td data-label="Product"><span class="table-primary">{{ m.product.name }}</span><span class="table-secondary">{{ m.product.product_code }}</span></td><td data-label="Type">{{ m.get_movement_type_display }}</td><td data-label="Change"><span class="qty-change {% if m.quantity_change > 0 %}plus{% else %}minus{% endif %}">{% if m.quantity_change > 0 %}+{% endif %}{{ m.quantity_change }}</span></td><td data-label="Reason">{{ m.reason }}</td><td data-label="By">{{ m.created_by.username }}</td><td data-label="When">{{ m.created_at|date:"M j, Y H:i" }}</td></tr>{% empty %}<tr><td colspan="6"><div class="empty-state"><strong>No movements found</strong>Stock changes will appear here.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+{% endblock %}

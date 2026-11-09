@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}All orders | Northstar{% endblock %}
+{% block topbar_context %}Admin panel <span>/</span> <strong>Orders</strong>{% endblock %}
+{% block content %}
+<div class="page-title"><div><div class="eyebrow">Order management</div><h1>All orders</h1><p>Review every order across the team and confirm or cancel drafts.</p></div><a class="button" href="{% url 'new_order' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Create order</a></div>
+<form class="panel-filters" method="get">
+	<input type="search" name="q" value="{{ q }}" placeholder="Search order no., customer or user" aria-label="Search orders">
+	<select name="status" aria-label="Status"><option value="">All statuses</option><option value="DRAFT" {% if status == 'DRAFT' %}selected{% endif %}>Draft</option><option value="CONFIRMED" {% if status == 'CONFIRMED' %}selected{% endif %}>Confirmed</option><option value="CANCELLED" {% if status == 'CANCELLED' %}selected{% endif %}>Cancelled</option></select>
+	<button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg> Filter</button>
+	{% if q or status %}<a class="button secondary" href="{% url 'panel_orders' %}">Reset</a>{% endif %}
+</form>
+<section class="card table-card">
+	<div class="section-heading"><div><h2>Orders</h2><p>{{ orders|length }} order{{ orders|length|pluralize }}</p></div><label class="page-size">Rows <select data-page-size><option>10</option><option>25</option><option>50</option></select></label></div>
+	<div class="table-wrap"><table data-enhance class="table-stack"><thead><tr><th>Order</th><th>Customer</th><th>Created by</th><th>Date</th><th>Status</th><th>Total</th><th>Actions</th></tr></thead><tbody>
+	{% for o in orders %}<tr><td data-label="Order"><button class="table-sort-link" type="button" onclick="showOrderDetails({{ o.id }})">{{ o.order_number }}</button></td><td data-label="Customer">{{ o.customer.name }}</td><td data-label="Created by">{{ o.created_by.username }}</td><td data-label="Date">{{ o.order_date|date:"M j, Y" }}</td><td data-label="Status"><span class="status status-{{ o.status|lower }}">{{ o.get_status_display }}</span></td><td data-label="Total" class="table-primary">₹{{ o.grand_total|floatformat:2 }}</td><td data-label="Actions" class="row-actions"><button class="secondary small" type="button" onclick="showOrderDetails({{ o.id }})">Details</button>{% if o.status == 'DRAFT' %}<button class="small" type="button" onclick="orderAction({{ o.id }},'confirm')">Confirm</button><button class="danger small" type="button" onclick="orderAction({{ o.id }},'cancel')">Cancel</button>{% elif o.status == 'CONFIRMED' %}<button class="danger small" type="button" onclick="orderAction({{ o.id }},'cancel')">Cancel</button>{% endif %}</td></tr>{% empty %}<tr><td colspan="7"><div class="empty-state"><strong>No orders found</strong>Try changing your filters.</div></td></tr>{% endfor %}
+	</tbody></table></div>
+</section>
+<div class="modal-backdrop" id="orderDetailModal" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle"><div class="modal-header"><div><h2 id="orderDetailTitle">Order details</h2><p id="orderDetailSubtitle">Loading order information</p></div><button class="icon-button modal-close" type="button" onclick="closeOrderDetails()" aria-label="Close order details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="modal-body" id="orderDetailBody"><div class="modal-loading">Loading order…</div></div></section></div>
+{% endblock %}
